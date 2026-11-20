@@ -1,0 +1,43 @@
+{
+  "case_id": "AGT-DOC-0018",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.3",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 890,
+    "completion": 180
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：长文档摘要的忠实度与关键条款覆盖",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "doc_reader",
+      "args": {
+        "path": "docs/contract.md"
+      },
+      "content": "调用 doc_reader",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。摘要覆盖付款周期/交付标准/违约责任（付款周期、交付标准、违约责任）。涉及数据：HT-2026、0917、2026、17。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "summary.md",
+      "type": "md",
+      "content": "# 摘要\n\n- 摘要覆盖付款周期/交付标准/违约责任\n\n付款周期为季度结算；交付标准要求抽样合格率不低于 98%；违约责任按逾期天数计收违约金，累计不超过合同总额的 20%。\n"
+    }
+  ],
+  "final_output": "已完成。摘要覆盖付款周期/交付标准/违约责任（付款周期、交付标准、违约责任）。涉及数据：HT-2026、0917、2026、17。"
+}

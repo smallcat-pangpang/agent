@@ -1,0 +1,47 @@
+{
+  "case_id": "AGT-SKL-0002",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.3",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 980,
+    "completion": 200
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：技能误匹配（CSV 需求不得选中 Excel 技能）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "skill_registry",
+      "args": {
+        "intent": "csv_export"
+      },
+      "content": "调用 skill_registry",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "skill_csv",
+      "args": {
+        "path": "orders.csv"
+      },
+      "content": "调用 skill_csv",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。选择 CSV 技能而不是 Excel 技能（csv、财务）。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。选择 CSV 技能而不是 Excel 技能（csv、财务）。"
+}

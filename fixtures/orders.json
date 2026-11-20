@@ -1,0 +1,20 @@
+{
+  "count": 12,
+  "range": "上周",
+  "currency": "CNY",
+  "orders": [
+    {"order_id": "A-1001", "customer": "张明", "amount": 128.5, "status": "已发货", "created": "2026-11-10"},
+    {"order_id": "A-1002", "customer": "李蕾", "amount": 3420.0, "status": "已发货", "created": "2026-11-11"},
+    {"order_id": "A-1003", "customer": "王强", "amount": 89.9, "status": "待发货", "created": "2026-11-11"},
+    {"order_id": "A-1004", "customer": "赵敏", "amount": 1560.0, "status": "已发货", "created": "2026-11-12"},
+    {"order_id": "A-1005", "customer": "陈晨", "amount": 230.0, "status": "已退款", "created": "2026-11-12"},
+    {"order_id": "A-1006", "customer": "刘洋", "amount": 780.5, "status": "已发货", "created": "2026-11-13"},
+    {"order_id": "A-1007", "customer": "孙悦", "amount": 45.0, "status": "待发货", "created": "2026-11-13"},
+    {"order_id": "A-1008", "customer": "周杰", "amount": 2999.0, "status": "已发货", "created": "2026-11-14"},
+    {"order_id": "A-1009", "customer": "吴倩", "amount": 610.0, "status": "已发货", "created": "2026-11-14"},
+    {"order_id": "A-1010", "customer": "郑凯", "amount": 78.8, "status": "已退款", "created": "2026-11-15"},
+    {"order_id": "A-1011", "customer": "冯雪", "amount": 1340.0, "status": "已发货", "created": "2026-11-15"},
+    {"order_id": "A-1012", "customer": "何磊", "amount": 520.0, "status": "待发货", "created": "2026-11-16"}
+  ],
+  "summary": {"total_amount": 11802.2, "shipped": 8, "pending": 3, "refunded": 2}
+}

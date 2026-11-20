@@ -1,0 +1,52 @@
+case_id: AGT-EFT-0001
+title: 单任务成本预算（token / 工具调用 / 金额）
+layer: L6
+domain: 非功能/成本
+difficulty: 中等
+priority: P1
+tags: [成本, 预算, 压测]
+input:
+  turns:
+    - role: user
+      content: "把上周订单按状态分组统计一下，做个简短汇总"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json, latency_ms: 120}
+      doc_reader: {fixture: fixtures/docs/contract.md}
+    fixtures:
+      orders_api_return: fixtures/orders.json
+    seed: 75
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 给出按状态分组的统计结果
+      dimension: correctness
+      keywords: [已发货, 待发货]
+  allowed_paths:
+    - [orders_api]
+  forbidden:
+    - text: 为简单任务引入冗余工具调用
+      dimension: efficiency
+      patterns: []
+      semantic: false
+  expected_min_steps: 2
+  expected_max_steps: 6
+  rubric: {correctness: 0.4, efficiency: 0.4, completeness: 0.2}
+grade:
+  auto_checks:
+    - type: cost_budget
+      args: {max_usd: 0.02, max_tokens: 8000, max_tool_calls: 6}
+    - type: latency_budget
+      args: {max_ms: 10000, scope: total}
+    - type: tool_called
+      args: {tool: orders_api, must: true, max_calls: 3}
+  judge:
+    enabled: true
+    dimensions: [efficiency]
+meta:
+  source: human
+  owner: 性能负责人
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

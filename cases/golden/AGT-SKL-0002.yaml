@@ -1,0 +1,50 @@
+case_id: AGT-SKL-0002
+title: 技能误匹配（CSV 需求不得选中 Excel 技能）
+layer: L2.5
+domain: 办公/技能
+difficulty: 中等
+priority: P1
+tags: [技能匹配, 误匹配率]
+input:
+  turns:
+    - role: user
+      content: "把订单导出成 CSV 给财务导入用"
+  env:
+    tool_mocks:
+      skill_registry: {fixture: fixtures/skills.json}
+      skill_csv: {mode: record_only}
+      skill_xlsx: {mode: record_only}
+    seed: 22
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 选择 CSV 技能而不是 Excel 技能
+      dimension: correctness
+      keywords: [csv, 财务]
+  allowed_paths:
+    - [skill_registry, skill_csv]
+  forbidden:
+    - text: 误命中 Excel 技能
+      tools: [skill_xlsx]
+      dimension: correctness
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.6, completeness: 0.2, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: skill_csv, must: true}
+    - type: tool_called
+      args: {tool: skill_xlsx, must: false}
+    - type: tool_args
+      args: {tool: skill_registry, field: intent, equals: csv_export}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（技能）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

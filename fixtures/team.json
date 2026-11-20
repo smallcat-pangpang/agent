@@ -1,0 +1,14 @@
+{
+  "team": "运营中台",
+  "members": [
+    {"name": "张明", "role": "负责人"},
+    {"name": "李蕾", "role": "数据分析"},
+    {"name": "王强", "role": "运营执行"}
+  ],
+  "current_project": {
+    "name": "双十一复盘",
+    "budget_cny": 1200000,
+    "deadline": "2026-12-05"
+  },
+  "notes": "预算单位为元；对外口径统一使用万元"
+}

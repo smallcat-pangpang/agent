@@ -1,0 +1,53 @@
+case_id: AGT-L2-0001
+title: 工具参数正确性（时间范围与必填字段）
+layer: L2
+domain: 办公/订单
+difficulty: 中等
+priority: P0
+tags: [工具参数, 必填校验]
+input:
+  turns:
+    - role: user
+      content: "把上周的订单拉出来，最多 100 条"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json, latency_ms: 120}
+    fixtures:
+      orders_api_return: fixtures/orders.json
+    seed: 42
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 调用 orders_api 且时间范围为上周
+      dimension: correctness
+      keywords: [orders_api, 上周]
+  allowed_paths:
+    - [orders_api]
+  forbidden:
+    - text: 把时间范围错写成本月/本周
+      tools: [orders_api]
+      args: {range: {in: [本月, 本周, 今天]}}
+      dimension: correctness
+  expected_min_steps: 2
+  expected_max_steps: 6
+  rubric: {correctness: 0.6, completeness: 0.2, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: orders_api, must: true}
+    - type: tool_args
+      args: {tool: orders_api, field: range, equals: 上周}
+    - type: tool_args
+      args: {tool: orders_api, field: limit, type: integer}
+    - type: tool_args
+      args: {tool: orders_api, field: range, required: true}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（订单）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

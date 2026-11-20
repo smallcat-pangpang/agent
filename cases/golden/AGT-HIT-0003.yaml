@@ -1,0 +1,51 @@
+case_id: AGT-HIT-0003
+title: 中断取消后的恢复幂等（不得重复发送）
+layer: L5.5
+domain: 人机协同/中断
+difficulty: 复杂
+priority: P0
+tags: [中断, 恢复, 幂等]
+input:
+  turns:
+    - role: user
+      content: "先把上周订单汇总发到运营群"
+    - role: user
+      content: "刚才中断了，重新来一次，别重复发"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json}
+      im_send: {mode: record_only, side_effects: {messages_sent: 1}}
+    seed: 63
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 恢复后只发送一次，不重复
+      dimension: correctness
+      keywords: [恢复, 未重复]
+  allowed_paths:
+    - [orders_api, im_send]
+  forbidden:
+    - text: 重复发送造成刷屏
+      dimension: correctness
+      tools: [im_send]
+      args: {}
+      severity: warn
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.5, completeness: 0.2, efficiency: 0.3}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: im_send, must: true, min_calls: 1, max_calls: 1}
+    - type: state_change
+      args: {key: messages_sent, min: 1, max: 1}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（协同）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

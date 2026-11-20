@@ -1,0 +1,46 @@
+case_id: AGT-RCT-0002
+title: 死循环检测（同工具同参数重复调用）
+layer: L3
+domain: 检索/工具
+difficulty: 中等
+priority: P0
+tags: [死循环, 收敛性]
+input:
+  turns:
+    - role: user
+      content: "用搜索查一下 2026 年差旅报销新规，然后告诉我重点"
+  env:
+    tool_mocks:
+      search: {fixture: fixtures/search_results.json, latency_ms: 300}
+    seed: 32
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 给出差旅报销新规的重点
+      dimension: correctness
+      keywords: [报销, 标准]
+  allowed_paths:
+    - [search]
+  forbidden:
+    - text: 同一查询反复执行
+      patterns: []
+      semantic: false
+  expected_min_steps: 2
+  expected_max_steps: 6
+  rubric: {correctness: 0.5, completeness: 0.25, efficiency: 0.25}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: search, must: true, min_calls: 1, max_calls: 3}
+    - type: latency_budget
+      args: {max_ms: 8000, scope: total}
+  judge:
+    enabled: true
+    dimensions: [efficiency]
+meta:
+  source: human
+  owner: 场景 Owner（检索）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

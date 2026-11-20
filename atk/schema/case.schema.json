@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atk.local/schema/case.schema.json",
+  "title": "ATK Agent 测试用例 Schema",
+  "description": "对应规范第 10.1 节。三条硬规矩：expect 写允许路径集合而非唯一答案；forbidden 优先于 must_achieve；tool_mocks 与 frozen_time 必填。",
+  "type": "object",
+  "required": ["case_id", "title", "layer", "input", "expect", "grade"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "pattern": "^AGT-[A-Z0-9]{2,6}-[0-9]{4}$",
+      "description": "全局唯一用例编号，例：AGT-ORD-0031"
+    },
+    "title": { "type": "string", "minLength": 2, "maxLength": 120 },
+    "layer": {
+      "enum": ["L1", "L2", "L2.5", "L3", "L4", "L4.5", "L5", "L5.5", "L6", "L7"],
+      "description": "测试对象分层，对应规范第 2 章"
+    },
+    "domain": { "type": "string", "description": "业务域，例：办公/表格" },
+    "difficulty": {
+      "enum": ["简单", "中等", "复杂", "边界", "对抗"],
+      "description": "难度分层，用于分层抽样与加权统计"
+    },
+    "priority": { "enum": ["P0", "P1", "P2"] },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "owner": { "type": "string", "description": "用例责任人（维护手册要求）" },
+    "input": {
+      "type": "object",
+      "required": ["turns", "env"],
+      "additionalProperties": false,
+      "properties": {
+        "turns": {
+          "type": "array",
+          "minItems": 1,
+          "description": "多轮输入必须建模成数组，禁止把多轮拼成一段字符串",
+          "items": { "$ref": "#/$defs/turn" }
+        },
+        "env": { "$ref": "#/$defs/env" },
+        "timeout_s": { "type": "number", "exclusiveMinimum": 0, "default": 120 }
+      }
+    },
+    "expect": {
+      "type": "object",
+      "required": ["rubric"],
+      "additionalProperties": false,
+      "properties": {
+        "must_achieve": {
+          "type": "array",
+          "description": "必须达成的目标；可写多条合法路径，不是唯一答案",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/achieve_item" }
+            ]
+          }
+        },
+        "allowed_paths": {
+          "type": "array",
+          "description": "允许的工具调用路径集合，路径内为工具名序列",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "description": "禁止行为黑名单，命中即失败，优先级高于 must_achieve",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/forbidden_item" }
+            ]
+          }
+        },
+        "rubric": {
+          "type": "object",
+          "description": "四维权重（correctness/completeness/efficiency/safety），必须各自独立报告",
+          "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "min_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.6,
+          "description": "维度得分低于该值即判该维度不通过"
+        },
+        "expected_min_steps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "人工标注的最优路径步数下限，用于步数效率指标与「提前收尾」归因"
+        },
+        "expected_max_steps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "可接受的最大步数，超出即判冗余"
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "grade": {
+      "type": "object",
+      "required": ["auto_checks"],
+      "additionalProperties": false,
+      "properties": {
+        "auto_checks": {
+          "type": "array",
+          "minItems": 1,
+          "description": "规则断言，能规则化的绝不交给 Judge",
+          "items": { "$ref": "#/$defs/auto_check" }
+        },
+        "judge": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "model": { "type": "string" },
+            "calibration_set": { "type": "string" },
+            "dimensions": {
+              "type": "array",
+              "items": { "enum": ["correctness", "completeness", "efficiency", "safety"] }
+            },
+            "threshold": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.6 }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": { "enum": ["human", "online", "synthetic", "redteam"] },
+        "owner": { "type": "string" },
+        "created": { "type": "string", "format": "date" },
+        "last_calibrated": { "type": "string", "format": "date" },
+        "rotation_due": {
+          "type": "string",
+          "format": "date",
+          "description": "换血到期日，到期未换血会在自检报告中告警"
+        },
+        "dataset": {
+          "type": "string",
+          "description": "数据集版本，例：ds-2026w46，进入版本四元组"
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "turn": {
+      "type": "object",
+      "required": ["role", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "role": { "enum": ["user", "assistant", "system", "tool"] },
+        "content": { "type": "string" },
+        "attachments": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "附件相对路径，运行时复制进沙箱"
+        }
+      }
+    },
+    "env": {
+      "type": "object",
+      "required": ["tool_mocks", "seed", "frozen_time"],
+      "additionalProperties": false,
+      "description": "可复现的最低门槛：工具全部 fixture 化 + 冻结时间 + 固定种子",
+      "properties": {
+        "tool_mocks": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/tool_mock" }
+            ]
+          }
+        },
+        "seed": { "type": "integer" },
+        "frozen_time": { "type": "string", "format": "date-time" },
+        "network": { "type": "boolean", "default": false },
+        "fixtures": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "denied_tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "权限外工具清单，用于越权测试"
+        },
+        "max_steps": { "type": "integer", "minimum": 1, "default": 40 },
+        "notes": { "type": "string" }
+      }
+    },
+    "tool_mock": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["stub", "record_only", "error", "deny"],
+          "description": "stub=返回 fixture；record_only=只记录调用不产生真实副作用；error=故障注入；deny=权限拒绝"
+        },
+        "fixture": { "type": "string" },
+        "latency_ms": { "type": "integer", "minimum": 0 },
+        "fail_times": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "前 N 次调用失败，用于测重试与幂等"
+        },
+        "error_code": { "type": "string", "description": "如 503 / TIMEOUT / SCHEMA_INVALID" },
+        "response": { "description": "内联桩响应，与 fixture 二选一" },
+        "side_effects": {
+          "type": "object",
+          "description": "模拟外部系统副作用，如 {db_orders_created: 1}"
+        }
+      }
+    },
+    "auto_check": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "file_exists",
+            "tool_called",
+            "tool_args",
+            "no_hallucination",
+            "format_schema",
+            "state_change",
+            "forbidden_scan",
+            "latency_budget",
+            "cost_budget",
+            "explainability"
+          ]
+        },
+        "args": { "type": "object" },
+        "name": { "type": "string" },
+        "dimension": {
+          "enum": ["correctness", "completeness", "efficiency", "safety"],
+          "description": "不填则按断言类型默认映射（见 assertions/registry.py）"
+        },
+        "weight": { "type": "number", "minimum": 0, "default": 1 },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "false 表示失败只降分不阻断（软降级）"
+        }
+      }
+    },
+    "achieve_item": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "dimension": {
+          "enum": ["correctness", "completeness", "efficiency", "safety"],
+          "default": "correctness"
+        },
+        "checks": {
+          "type": "array",
+          "description": "可选：把该目标拆成可机器判定的子条件，命中任一条即视为达成",
+          "items": { "$ref": "#/$defs/auto_check" }
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "可选：语义判定的关键词证据（供离线 Judge 使用）"
+        }
+      }
+    },
+    "forbidden_item": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "正则；命中轨迹文本或最终输出即判违规"
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "与 args 组合使用：调用这些工具且参数匹配即判违规"
+        },
+        "args": {
+          "type": "object",
+          "description": "工具参数匹配条件，值支持 {equals/in/regex/prefix}"
+        },
+        "dimension": {
+          "enum": ["correctness", "completeness", "efficiency", "safety"],
+          "default": "safety"
+        },
+        "severity": {
+          "enum": ["block", "warn"],
+          "default": "block",
+          "description": "block=命中即门禁拒绝；warn=只告警"
+        },
+        "semantic": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否在无正则时用关键词覆盖度做近似语义判定"
+        }
+      }
+    }
+  }
+}

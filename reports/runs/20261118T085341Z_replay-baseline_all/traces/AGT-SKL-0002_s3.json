@@ -1,0 +1,233 @@
+{
+  "run_id": "20261118T085341Z_replay-baseline_all",
+  "case_id": "AGT-SKL-0002",
+  "sample_idx": 3,
+  "version_quad": {
+    "model": "demo-2026.11",
+    "prompt": "v2.3",
+    "tool_schema": "v1.7",
+    "dataset": "ds-2026w46",
+    "framework": "atk-1.0.0"
+  },
+  "started_at": "2026-11-18T08:53:41+00:00",
+  "duration_ms": 2,
+  "agent": "replay:baseline",
+  "case": {
+    "case_id": "AGT-SKL-0002",
+    "title": "技能误匹配（CSV 需求不得选中 Excel 技能）",
+    "layer": "L2.5",
+    "priority": "P1",
+    "difficulty": "中等",
+    "domain": "办公/技能",
+    "tags": [
+      "技能匹配",
+      "误匹配率"
+    ],
+    "supports_pass_k": true
+  },
+  "trajectory": {
+    "steps": [
+      {
+        "step": 1,
+        "type": "plan",
+        "content": "计划：技能误匹配（CSV 需求不得选中 Excel 技能）",
+        "tokens": 120
+      },
+      {
+        "step": 2,
+        "type": "tool_call",
+        "content": "调用 skill_registry",
+        "tool": "skill_registry",
+        "args": {
+          "intent": "csv_export"
+        }
+      },
+      {
+        "step": 3,
+        "type": "tool_result",
+        "content": "{\"tool\": \"skill_registry\", \"ok\": true, \"data\": {\"version\": \"skills-2026w46\", \"skills\": [{\"name\": \"spreadsheet\", \"tool\": \"skill_xlsx\", \"description\": \"生成/编辑 Excel，支持公式与图表\", \"triggers\": [\"Excel\", \"xlsx\", \"表格\", \"图表\"]}, {\"name\": \"csv_export\", \"tool\": \"skill_csv\", \"description\": \"导出 CSV，供财务/系统导入\", \"triggers\": [\"CSV\", \"csv\", \"财务\", \"导入\"]}, {\"name\": \"pdf_report\", \"tool\": \"skill_pdf\", \"description\": \"生成 PDF 报告\", \"triggers\": [\"PDF\", \"pdf\", \"报告\"]}, {\"name\": \"email_send\", \"tool\": \"skill_email\", \"description\": \"发送邮件（需确认）\", \"triggers\": [\"邮件\", \"email\", \"发送\"]}, {\"name\": \"doc_summary\", \"tool\": \"skill_doc\", \"description\": \"长文档摘要\", \"triggers\": [\"摘要\", \"总结\", \"文档\"]}]}}",
+        "tool": "skill_registry",
+        "ok": true
+      },
+      {
+        "step": 4,
+        "type": "tool_call",
+        "content": "调用 skill_csv",
+        "tool": "skill_csv",
+        "args": {
+          "path": "orders.csv"
+        }
+      },
+      {
+        "step": 5,
+        "type": "tool_result",
+        "content": "{\"tool\": \"skill_csv\", \"ok\": true, \"data\": {\"recorded\": true, \"receipt_id\": \"rcpt-59409\", \"echo\": {\"path\": \"orders.csv\"}}}",
+        "tool": "skill_csv",
+        "ok": true
+      },
+      {
+        "step": 6,
+        "type": "final",
+        "content": "已完成。选择 CSV 技能而不是 Excel 技能（csv、财务）。",
+        "latency_ms": 400,
+        "tokens": 200
+      }
+    ],
+    "final_output": "已完成。选择 CSV 技能而不是 Excel 技能（csv、财务）。",
+    "artifacts": []
+  },
+  "invocations": [
+    {
+      "tool": "skill_registry",
+      "args": {
+        "intent": "csv_export"
+      },
+      "ok": true,
+      "latency_ms": 0,
+      "result": {
+        "version": "skills-2026w46",
+        "skills": [
+          {
+            "name": "spreadsheet",
+            "tool": "skill_xlsx",
+            "description": "生成/编辑 Excel，支持公式与图表",
+            "triggers": [
+              "Excel",
+              "xlsx",
+              "表格",
+              "图表"
+            ]
+          },
+          {
+            "name": "csv_export",
+            "tool": "skill_csv",
+            "description": "导出 CSV，供财务/系统导入",
+            "triggers": [
+              "CSV",
+              "csv",
+              "财务",
+              "导入"
+            ]
+          },
+          {
+            "name": "pdf_report",
+            "tool": "skill_pdf",
+            "description": "生成 PDF 报告",
+            "triggers": [
+              "PDF",
+              "pdf",
+              "报告"
+            ]
+          },
+          {
+            "name": "email_send",
+            "tool": "skill_email",
+            "description": "发送邮件（需确认）",
+            "triggers": [
+              "邮件",
+              "email",
+              "发送"
+            ]
+          },
+          {
+            "name": "doc_summary",
+            "tool": "skill_doc",
+            "description": "长文档摘要",
+            "triggers": [
+              "摘要",
+              "总结",
+              "文档"
+            ]
+          }
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:00+08:00",
+      "attempt": 1,
+      "denied": false,
+      "side_effects": {}
+    },
+    {
+      "tool": "skill_csv",
+      "args": {
+        "path": "orders.csv"
+      },
+      "ok": true,
+      "latency_ms": 0,
+      "result": {
+        "recorded": true,
+        "receipt_id": "rcpt-59409",
+        "echo": {
+          "path": "orders.csv"
+        }
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:00+08:00",
+      "attempt": 1,
+      "denied": false,
+      "side_effects": {}
+    }
+  ],
+  "artifacts": [],
+  "metrics": {
+    "steps": 6,
+    "prompt_tokens": 980,
+    "completion_tokens": 200,
+    "tool_tokens": 193,
+    "model_cost_usd": 0.00594,
+    "tool_cost_usd": 0.0004,
+    "latency_ms": 400,
+    "ttft_ms": 420,
+    "tool_calls": 2,
+    "retries": 0,
+    "max_steps_hit": false,
+    "tokens_total": 1373,
+    "cost_usd": 0.00634
+  },
+  "verdict": {
+    "auto": "pass",
+    "final": "pass",
+    "rules_failed": [],
+    "rules_passed": 4,
+    "judge_scores": {},
+    "dimension_scores": {
+      "correctness": 1.0
+    },
+    "forbidden_hits": [],
+    "failure_class": null,
+    "failure_step": 6,
+    "failure_snippet": "   step4 [skill_csv] 调用 skill_csv\n   step5 [skill_csv] {\"tool\": \"skill_csv\", \"ok\": true, \"data\": {\"recorded\": true, \"receipt_id\": \"rcpt-59409\", \"echo\": {\"path\": \"orders.csv\"}}}\n>> step6 [final] 已完成。选择 CSV 技能而不是 Excel 技能（csv、财务）。",
+    "judge_skipped": true,
+    "notes": [
+      "盲评校验失败，已跳过 Judge: ['must_achieve 泄漏: 选择 CSV 技能而不是 Excel 技能']"
+    ]
+  },
+  "attribution": null,
+  "env_fingerprint": {
+    "sandbox": {
+      "root": "reports\\runs\\20261118T085341Z_replay-baseline_all\\sandboxes\\AGT-SKL-0002\\s3",
+      "frozen_time": "2026-11-18T10:00:00+08:00",
+      "seed": 22,
+      "files": 0
+    },
+    "tools": {
+      "tools": {
+        "skill_csv": "record_only",
+        "skill_registry": "stub",
+        "skill_xlsx": "record_only"
+      },
+      "seed": 22,
+      "frozen_time": "2026-11-18T10:00:00+08:00",
+      "network": false,
+      "denied_tools": []
+    },
+    "seed": 22,
+    "frozen_time": "2026-11-18T10:00:00+08:00"
+  },
+  "sandbox_dir": "reports\\runs\\20261118T085341Z_replay-baseline_all\\sandboxes\\AGT-SKL-0002\\s3",
+  "flaky": false,
+  "quarantined": false,
+  "human_label": null
+}

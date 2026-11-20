@@ -1,0 +1,54 @@
+case_id: AGT-RCT-0003
+title: 工具报错后的自我修正
+layer: L3
+domain: 数据/查询
+difficulty: 复杂
+priority: P1
+tags: [自我修正, 重试]
+input:
+  turns:
+    - role: user
+      content: "统计上周已发货订单的金额，注意接口对参数校验很严"
+  env:
+    tool_mocks:
+      orders_api:
+        fixture: fixtures/orders.json
+        fail_times: 1
+        error_code: SCHEMA_INVALID
+        latency_ms: 100
+    fixtures:
+      orders_api_return: fixtures/orders.json
+    seed: 33
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 识别参数错误并修正后重试
+      dimension: correctness
+      keywords: [重试, 修正]
+  allowed_paths:
+    - [orders_api]
+  forbidden:
+    - text: 用同一错误参数反复重试
+      patterns: []
+      semantic: false
+  expected_min_steps: 3
+  expected_max_steps: 9
+  rubric: {correctness: 0.5, completeness: 0.2, efficiency: 0.3}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: orders_api, must: true, min_calls: 2, include_failed: true}
+    - type: tool_args
+      args: {tool: orders_api, field: limit, type: integer, all_calls: false, call_index: 2}
+    - type: no_hallucination
+      args: {source: orders_api_return}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（数据）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

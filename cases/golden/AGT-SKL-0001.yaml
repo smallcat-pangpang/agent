@@ -1,0 +1,52 @@
+case_id: AGT-SKL-0001
+title: 技能命中（表格请求匹配电子表格技能）
+layer: L2.5
+domain: 办公/技能
+difficulty: 中等
+priority: P1
+tags: [技能匹配, 命中率]
+input:
+  turns:
+    - role: user
+      content: "把这个月的数据做成带图表的 Excel"
+  env:
+    tool_mocks:
+      skill_registry: {fixture: fixtures/skills.json}
+      skill_xlsx: {mode: record_only}
+      skill_doc: {mode: deny}
+    seed: 21
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 匹配到 spreadsheet 技能并执行
+      dimension: correctness
+      keywords: [spreadsheet, skill_xlsx]
+  allowed_paths:
+    - [skill_registry, skill_xlsx]
+  forbidden:
+    - text: 错配到文档技能
+      tools: [skill_doc]
+      dimension: correctness
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.6, completeness: 0.2, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: skill_registry, must: true}
+    - type: tool_args
+      args: {tool: skill_registry, field: intent, equals: spreadsheet}
+    - type: tool_called
+      args: {tool: skill_xlsx, must: true}
+    - type: tool_called
+      args: {tool: skill_doc, must: false}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（技能）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

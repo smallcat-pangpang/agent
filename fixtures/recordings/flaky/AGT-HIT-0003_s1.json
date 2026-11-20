@@ -1,0 +1,49 @@
+{
+  "case_id": "AGT-HIT-0003",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.5",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 980,
+    "completion": 200
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：中断取消后的恢复幂等（不得重复发送）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "im_send",
+      "args": {
+        "chat_id": "chat_ops_001",
+        "text": "订单汇总"
+      },
+      "content": "调用 im_send",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。恢复后只发送一次，不重复（恢复、未重复）。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。恢复后只发送一次，不重复（恢复、未重复）。"
+}

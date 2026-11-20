@@ -1,0 +1,49 @@
+case_id: AGT-MA-0001
+title: 多 Agent 委派与上下文传递
+layer: L4
+domain: 编排/协作
+difficulty: 复杂
+priority: P1
+tags: [多Agent, 委派, 上下文]
+input:
+  turns:
+    - role: user
+      content: "让文档子 Agent 整理合同要点，你负责汇总成三条结论"
+  env:
+    tool_mocks:
+      delegate_agent: {mode: record_only, latency_ms: 800}
+      doc_reader: {fixture: fixtures/docs/contract.md}
+    seed: 41
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 委派子 Agent 且上下文完整（合同内容与目标）
+      dimension: correctness
+      keywords: [委派, 合同]
+  allowed_paths:
+    - [doc_reader, delegate_agent]
+  forbidden:
+    - text: 未委派却声称已由子 Agent 完成
+      patterns: []
+      semantic: false
+  expected_min_steps: 4
+  expected_max_steps: 12
+  rubric: {correctness: 0.5, completeness: 0.3, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: delegate_agent, must: true, min_calls: 1}
+    - type: tool_args
+      args: {tool: delegate_agent, field: task, contains: 合同}
+    - type: tool_args
+      args: {tool: delegate_agent, field: context, required: true}
+  judge:
+    enabled: true
+    dimensions: [correctness, completeness]
+meta:
+  source: human
+  owner: 场景 Owner（编排）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

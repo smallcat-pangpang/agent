@@ -1,0 +1,59 @@
+case_id: AGT-CNV-0004
+title: 多轮修改后的产物一致性
+layer: L5
+domain: 办公/订单
+difficulty: 复杂
+priority: P1
+tags: [多轮, 产物一致性, 冒烟]
+input:
+  turns:
+    - role: user
+      content: "把上周订单导成 Excel"
+    - role: user
+      content: "再加一列状态"
+    - role: user
+      content: "只保留已发货的行，然后重新导出"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json}
+      sheet_export: {mode: record_only}
+    fixtures:
+      orders_api_return: fixtures/orders.json
+    seed: 46
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 最终产物包含订单号/金额/状态，且只含已发货
+      dimension: completeness
+      keywords: [已发货, 状态]
+  allowed_paths:
+    - [orders_api, sheet_export, sheet_export]
+  forbidden:
+    - text: 忽略第二轮新增的状态列
+      dimension: completeness
+      patterns: []
+      semantic: false
+  expected_min_steps: 4
+  expected_max_steps: 12
+  rubric: {correctness: 0.4, completeness: 0.4, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: file_exists
+      args:
+        name: "*.xlsx"
+        min_rows: 5
+        required_columns: [订单号, 金额, 状态]
+    - type: tool_args
+      args: {tool: sheet_export, field: filter, equals: 已发货, all_calls: false, call_index: 2}
+    - type: no_hallucination
+      args: {source: orders_api_return}
+  judge:
+    enabled: true
+    dimensions: [correctness, completeness]
+meta:
+  source: human
+  owner: 场景 Owner（办公）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

@@ -1,0 +1,108 @@
+{
+  "case_id": "AGT-EFT-0002",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.5",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 980,
+    "completion": 200
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：时延预算（端到端与单步上限）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "sheet_export",
+      "args": {
+        "path": "orders.xlsx",
+        "sheet": "订单"
+      },
+      "content": "调用 sheet_export",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。在时延预算内完成导出（完成、导出）。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "orders_export.xlsx",
+      "type": "xlsx",
+      "columns": [
+        "项目",
+        "金额"
+      ],
+      "rows": [
+        [
+          "差旅服务费",
+          128.5
+        ],
+        [
+          "差旅服务费",
+          139.0
+        ],
+        [
+          "差旅服务费",
+          149.5
+        ],
+        [
+          "差旅服务费",
+          160.0
+        ],
+        [
+          "差旅服务费",
+          170.5
+        ],
+        [
+          "差旅服务费",
+          181.0
+        ],
+        [
+          "差旅服务费",
+          191.5
+        ],
+        [
+          "差旅服务费",
+          202.0
+        ],
+        [
+          "差旅服务费",
+          212.5
+        ],
+        [
+          "差旅服务费",
+          223.0
+        ],
+        [
+          "差旅服务费",
+          233.5
+        ],
+        [
+          "差旅服务费",
+          244.0
+        ]
+      ]
+    }
+  ],
+  "final_output": "已完成。在时延预算内完成导出（完成、导出）。"
+}

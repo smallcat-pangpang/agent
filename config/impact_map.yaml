@@ -1,0 +1,60 @@
+# 影响面分析规则：改动文件 → 受影响用例集
+#
+# 用法：
+#   atk impact --git-base HEAD~1
+#   atk run --profile impact --case-id $(atk impact ...)   # 或用 --limit 控制规模
+#
+# 规则匹配到 paths 后，按 layers / tags / priorities / case_ids 圈定用例。
+# 一条规则都没命中时，退化到 fallback_layers 并在输出里明确标注 unmatched。
+
+rules:
+  - name: 工具 Mock 与工具协议变更
+    paths:
+      - "atk/envs/tool_mock.py"
+      - "atk/assertions/checks.py"
+      - "tools/*"
+    layers: [L2, L2.5, L3]
+    tags: [工具参数, 幂等性]
+
+  - name: 订单/表格类场景变更
+    paths:
+      - "fixtures/orders*"
+      - "fixtures/stock*"
+      - "cases/golden/AGT-ORD-*"
+      - "cases/golden/AGT-DLV-*"
+    tags: [文件产出, 多工具]
+
+  - name: 文档与长上下文相关
+    paths:
+      - "fixtures/docs/*"
+      - "fixtures/pages/*"
+      - "cases/golden/AGT-DOC-*"
+      - "cases/golden/AGT-MEM-*"
+    layers: [L4.5, L5]
+    tags: [长文档, 长会话, 上下文]
+
+  - name: 安全与红队用例
+    paths:
+      - "fixtures/pages/*"
+      - "fixtures/images/*"
+      - "fixtures/customers*"
+      - "cases/golden/AGT-SEC-*"
+      - "cases/calibration/*"
+    tags: [安全, 提示注入, 间接注入, 越权, PII, 红队]
+
+  - name: 门禁/指标/报告逻辑
+    paths:
+      - "atk/metrics/*"
+      - "atk/pipeline/gate.py"
+      - "atk/report/*"
+    priorities: [P0]
+    layers: [L5, L6]
+
+  - name: 人机协同与中断恢复
+    paths:
+      - "cases/golden/AGT-HIT-*"
+      - "atk/pipeline/runner.py"
+    layers: [L5.5]
+
+fallback_layers: [L2, L3, L6]
+max_cases: 200

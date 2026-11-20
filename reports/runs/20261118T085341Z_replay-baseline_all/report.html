@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent 版本评估报告</title>
+<style>
+:root { color-scheme: light; }
+body {
+  font-family: -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  max-width: 1040px; margin: 32px auto; padding: 0 24px; color: #1f2328;
+  line-height: 1.65; background: #fff;
+}
+h1 { font-size: 28px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+h2 { font-size: 21px; margin-top: 32px; border-left: 4px solid #2563eb; padding-left: 10px; }
+h3 { font-size: 17px; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+th, td { border: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; vertical-align: top; }
+th { background: #f8fafc; font-weight: 600; }
+tr:nth-child(even) td { background: #fcfcfd; }
+code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; font-size: 13px;
+       font-family: ui-monospace, Consolas, monospace; }
+blockquote { margin: 12px 0; padding: 8px 14px; background: #fff8e6;
+             border-left: 4px solid #f0b429; color: #5c4813; }
+ul, ol { padding-left: 22px; }
+li { margin: 3px 0; }
+hr { border: none; border-top: 1px solid #e5e7eb; margin: 28px 0; }
+.meta { color: #6b7280; font-size: 13px; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px;
+         font-size: 13px; font-weight: 600; }
+.badge-pass { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-block { background: #fee2e2; color: #991b1b; }
+.badge-report { background: #e0e7ff; color: #3730a3; }
+footer { margin-top: 40px; color: #9ca3af; font-size: 12px; }
+@media print { body { max-width: none; } h2 { break-after: avoid; } table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<p><span class="badge badge-pass">✅ PASS</span></p>
+<p class="meta">demo-2026.11 / v2.3 / ds-2026w46 ｜ 20261118T085341Z_replay-baseline_all</p>
+<h1>Agent 版本评估报告</h1>
+<p><strong>【版本】</strong> model <code>demo-2026.11</code> ｜ prompt <code>v2.3</code> ｜ tools <code>v1.7</code> ｜ dataset <code>ds-2026w46</code>（无基线） <strong>【结论】</strong> ✅ PASS（0 阻断 / 0 告警）</p>
+<p><strong>运行信息</strong>：<code>20261118T085341Z_replay-baseline_all</code> ｜ 档位 <code>all</code> ｜ 用例 35 条 ｜ 采样 105 次 ｜ 生成于 2026-11-18 08:53:41 UTC</p>
+<h2>一、概览</h2>
+<table><thead><tr><th>维度</th><th>状态</th><th>本次</th><th>基线</th><th>变化（95%CI）</th><th>样本</th></tr></thead><tbody><tr><td>安全</td><td>⚪</td><td>100.0%</td><td>-</td><td>-</td><td>51</td></tr><tr><td>正确性</td><td>⚪</td><td>100.0%</td><td>-</td><td>-</td><td>96</td></tr><tr><td>完整性</td><td>⚪</td><td>100.0%</td><td>-</td><td>-</td><td>30</td></tr><tr><td>效率</td><td>⚪</td><td>100.0%</td><td>-</td><td>-</td><td>18</td></tr><tr><td>P95 时延</td><td>⚪</td><td>2860ms</td><td>-</td><td>-</td><td>-</td></tr><tr><td>平均成本</td><td>⚪</td><td>$0.0060</td><td>-</td><td>-</td><td>-</td></tr></tbody></table>
+<p><strong>口径</strong>：成功率为单次采样口径（pass@1）；<code>pass^k</code> 见附录。「完成」定义为：最终结论正确 <strong>且</strong> 交付物可被打开/解析。</p>
+<h2>二、新增退化（按影响排序）</h2>
+<p>无新增退化。</p>
+<h2>三、新增修复</h2>
+<p>本次无新增修复（或未提供基线）。</p>
+<h2>四、归因分布</h2>
+<p>本次无失败，归因分布为空。</p>
+<h2>五、建议</h2>
+<ol><li>门禁通过，可进入灰度：先影子模式双跑对比，再 1% → 5% → 全量。</li><li><strong>建立基线</strong>：本次没有基线，无法判断退化/修复。请把这版结果作为下次对比的基线。</li></ol>
+<h2>附录 A. 稳定性（pass^k）</h2>
+<table><thead><tr><th>k</th><th>总体 pass^k</th><th>参与用例数</th><th>说明</th></tr></thead><tbody><tr><td>1</td><td>100.0%</td><td>35</td><td>单次通过率</td></tr><tr><td>2</td><td>100.0%</td><td>35</td><td>2 次全过才算通过</td></tr><tr><td>3</td><td>100.0%</td><td>35</td><td>3 次全过才算通过</td></tr><tr><td>4</td><td>—</td><td>0</td><td>采样次数不足，无法计算（需每用例 ≥4 次）</td></tr><tr><td>5</td><td>—</td><td>0</td><td>采样次数不足，无法计算（需每用例 ≥5 次）</td></tr></tbody></table>
+<h2>附录 B. 维度覆盖与数据质量</h2>
+<ul><li>正确性：覆盖 32 条用例 / 96 次采样，平均分 1.00</li><li>完整性：覆盖 10 条用例 / 30 次采样，平均分 0.99</li><li>效率：覆盖 6 条用例 / 18 次采样，平均分 1.00</li><li>安全：覆盖 17 条用例 / 51 次采样，平均分 1.00</li><li>Flaky：本次未发现同用例多轮结果不一致</li></ul>
+<h2>附录 C. Judge 可信度</h2>
+<ul><li>本次 Judge：<code>heuristic-v1（离线启发式，仅兜底）</code></li><li>校准结论：可用于门禁（Kappa 0.72，反向红队被骗率 0.0%）</li><li>⚠️ 以下维度 Judge 一致性不足：['safety']；这些维度的结论请以规则断言为准，Judge 分只作参考。</li><li>以下维度 Kappa 低于 0.6: ['safety']（Kappa 均 0.72）</li><li>存在明显长度偏差（Spearman +0.42）：长答案更容易被判对</li><li>Kappa 0.72 ≥ 0.6 且被骗率 0.0% ≤ 15%，可用于门禁</li></ul>
+<h2>附录 D. 运行备注</h2>
+<ul><li>Agent: replay:baseline</li><li>门禁模式: full</li></ul>
+<hr>
+<p><em>由 atk 生成于 2026-11-18 16:53；版本四元组：demo-2026.11 / v2.3 / v1.7 / ds-2026w46</em></p>
+<p><a href="..\..\dashboard.html">查看趋势看板 →</a></p>
+<footer>本报告由 atk（Agent TestKit）自动生成。指标口径见《指标口径说明》。</footer>
+</body>
+</html>

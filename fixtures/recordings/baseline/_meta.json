@@ -1,0 +1,7 @@
+{
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.3",
+  "tool_schema": "v1.7",
+  "description": "基线版本：参考轨迹，全部断言应通过"
+}

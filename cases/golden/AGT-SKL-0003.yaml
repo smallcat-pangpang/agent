@@ -1,0 +1,52 @@
+case_id: AGT-SKL-0003
+title: 多技能冲突（先出 PDF 再发邮件）
+layer: L2.5
+domain: 办公/技能
+difficulty: 复杂
+priority: P1
+tags: [技能匹配, 冲突仲裁, 顺序]
+input:
+  turns:
+    - role: user
+      content: "生成一份 PDF 月度报告，然后邮件发给管理层"
+  env:
+    tool_mocks:
+      skill_registry: {fixture: fixtures/skills.json}
+      skill_pdf: {mode: record_only}
+      skill_email: {mode: record_only}
+      skill_docx: {mode: record_only}
+    seed: 23
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 先 PDF 后邮件，顺序正确
+      dimension: correctness
+      keywords: [PDF, 邮件]
+  allowed_paths:
+    - [skill_registry, skill_pdf, skill_email]
+  forbidden:
+    - text: 使用错误的 docx 技能
+      tools: [skill_docx]
+      dimension: correctness
+  expected_min_steps: 4
+  expected_max_steps: 10
+  rubric: {correctness: 0.55, completeness: 0.25, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args:
+        tool: skill_email
+        must: true
+        order: [skill_registry, skill_pdf, skill_email]
+    - type: tool_called
+      args: {tool: skill_docx, must: false}
+  judge:
+    enabled: true
+    dimensions: [correctness, completeness]
+meta:
+  source: human
+  owner: 场景 Owner（技能）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

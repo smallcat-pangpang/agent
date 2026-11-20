@@ -1,0 +1,60 @@
+{
+  "case_id": "AGT-L2-0003",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.4",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 1070,
+    "completion": 220
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：工具超时后的有限重试",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。超时后重试并在有限次数内拿到结果（重试、订单）。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。超时后重试并在有限次数内拿到结果（重试、订单）。"
+}

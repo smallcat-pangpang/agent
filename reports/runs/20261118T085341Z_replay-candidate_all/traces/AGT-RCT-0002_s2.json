@@ -1,0 +1,394 @@
+{
+  "run_id": "20261118T085341Z_replay-candidate_all",
+  "case_id": "AGT-RCT-0002",
+  "sample_idx": 2,
+  "version_quad": {
+    "model": "demo-2026.11",
+    "prompt": "v2.4",
+    "tool_schema": "v1.7",
+    "dataset": "ds-2026w46",
+    "framework": "atk-1.0.0"
+  },
+  "started_at": "2026-11-18T08:53:41+00:00",
+  "duration_ms": 2,
+  "agent": "replay:candidate",
+  "case": {
+    "case_id": "AGT-RCT-0002",
+    "title": "死循环检测（同工具同参数重复调用）",
+    "layer": "L3",
+    "priority": "P0",
+    "difficulty": "中等",
+    "domain": "检索/工具",
+    "tags": [
+      "死循环",
+      "收敛性"
+    ],
+    "supports_pass_k": true
+  },
+  "trajectory": {
+    "steps": [
+      {
+        "step": 1,
+        "type": "plan",
+        "content": "计划：死循环检测（同工具同参数重复调用）",
+        "tokens": 120
+      },
+      {
+        "step": 2,
+        "type": "tool_call",
+        "content": "调用 search",
+        "tool": "search",
+        "args": {
+          "query": "2026 年差旅报销新规"
+        }
+      },
+      {
+        "step": 3,
+        "type": "tool_result",
+        "content": "{\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"snippet\": \"自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。\"}, {\"title\": \"差旅补贴标准调整说明\", \"url\": \"https://policy.example.com/subsidy\", \"snippet\": \"市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。\"}, {\"title\": \"报销流程与时效\", \"url\": \"https://policy.example.com/process\", \"snippet\": \"报销单需在出差结束后 15 个工作日内提交，逾期不予受理。\"}], \"count\": 3}}",
+        "tool": "search",
+        "ok": true,
+        "latency_ms": 300
+      },
+      {
+        "step": 4,
+        "type": "final",
+        "content": "已完成。给出差旅报销新规的重点（报销、标准）。",
+        "latency_ms": 400,
+        "tokens": 200
+      },
+      {
+        "step": 5,
+        "type": "tool_call",
+        "content": "再次查询",
+        "tool": "search",
+        "args": {
+          "query": "2026 年差旅报销新规"
+        }
+      },
+      {
+        "step": 6,
+        "type": "tool_result",
+        "content": "{\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"snippet\": \"自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。\"}, {\"title\": \"差旅补贴标准调整说明\", \"url\": \"https://policy.example.com/subsidy\", \"snippet\": \"市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。\"}, {\"title\": \"报销流程与时效\", \"url\": \"https://policy.example.com/process\", \"snippet\": \"报销单需在出差结束后 15 个工作日内提交，逾期不予受理。\"}], \"count\": 3}}",
+        "tool": "search",
+        "ok": true,
+        "latency_ms": 300
+      },
+      {
+        "step": 7,
+        "type": "tool_call",
+        "content": "再次查询",
+        "tool": "search",
+        "args": {
+          "query": "2026 年差旅报销新规"
+        }
+      },
+      {
+        "step": 8,
+        "type": "tool_result",
+        "content": "{\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"snippet\": \"自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。\"}, {\"title\": \"差旅补贴标准调整说明\", \"url\": \"https://policy.example.com/subsidy\", \"snippet\": \"市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。\"}, {\"title\": \"报销流程与时效\", \"url\": \"https://policy.example.com/process\", \"snippet\": \"报销单需在出差结束后 15 个工作日内提交，逾期不予受理。\"}], \"count\": 3}}",
+        "tool": "search",
+        "ok": true,
+        "latency_ms": 300
+      },
+      {
+        "step": 9,
+        "type": "tool_call",
+        "content": "再次查询",
+        "tool": "search",
+        "args": {
+          "query": "2026 年差旅报销新规"
+        }
+      },
+      {
+        "step": 10,
+        "type": "tool_result",
+        "content": "{\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"snippet\": \"自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。\"}, {\"title\": \"差旅补贴标准调整说明\", \"url\": \"https://policy.example.com/subsidy\", \"snippet\": \"市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。\"}, {\"title\": \"报销流程与时效\", \"url\": \"https://policy.example.com/process\", \"snippet\": \"报销单需在出差结束后 15 个工作日内提交，逾期不予受理。\"}], \"count\": 3}}",
+        "tool": "search",
+        "ok": true,
+        "latency_ms": 300
+      },
+      {
+        "step": 11,
+        "type": "tool_call",
+        "content": "再次查询",
+        "tool": "search",
+        "args": {
+          "query": "2026 年差旅报销新规"
+        }
+      },
+      {
+        "step": 12,
+        "type": "tool_result",
+        "content": "{\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"snippet\": \"自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。\"}, {\"title\": \"差旅补贴标准调整说明\", \"url\": \"https://policy.example.com/subsidy\", \"snippet\": \"市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。\"}, {\"title\": \"报销流程与时效\", \"url\": \"https://policy.example.com/process\", \"snippet\": \"报销单需在出差结束后 15 个工作日内提交，逾期不予受理。\"}], \"count\": 3}}",
+        "tool": "search",
+        "ok": true,
+        "latency_ms": 300
+      }
+    ],
+    "final_output": "已完成。给出差旅报销新规的重点（报销、标准）。",
+    "artifacts": []
+  },
+  "invocations": [
+    {
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "ok": true,
+      "latency_ms": 300,
+      "result": {
+        "query": "2026 年差旅报销新规",
+        "results": [
+          {
+            "title": "2026 年差旅报销管理办法（修订版）",
+            "url": "https://policy.example.com/travel-2026",
+            "snippet": "自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。"
+          },
+          {
+            "title": "差旅补贴标准调整说明",
+            "url": "https://policy.example.com/subsidy",
+            "snippet": "市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。"
+          },
+          {
+            "title": "报销流程与时效",
+            "url": "https://policy.example.com/process",
+            "snippet": "报销单需在出差结束后 15 个工作日内提交，逾期不予受理。"
+          }
+        ],
+        "count": 3
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:00.300000+08:00",
+      "attempt": 1,
+      "denied": false,
+      "side_effects": {}
+    },
+    {
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "ok": true,
+      "latency_ms": 300,
+      "result": {
+        "query": "2026 年差旅报销新规",
+        "results": [
+          {
+            "title": "2026 年差旅报销管理办法（修订版）",
+            "url": "https://policy.example.com/travel-2026",
+            "snippet": "自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。"
+          },
+          {
+            "title": "差旅补贴标准调整说明",
+            "url": "https://policy.example.com/subsidy",
+            "snippet": "市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。"
+          },
+          {
+            "title": "报销流程与时效",
+            "url": "https://policy.example.com/process",
+            "snippet": "报销单需在出差结束后 15 个工作日内提交，逾期不予受理。"
+          }
+        ],
+        "count": 3
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:00.600000+08:00",
+      "attempt": 2,
+      "denied": false,
+      "side_effects": {}
+    },
+    {
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "ok": true,
+      "latency_ms": 300,
+      "result": {
+        "query": "2026 年差旅报销新规",
+        "results": [
+          {
+            "title": "2026 年差旅报销管理办法（修订版）",
+            "url": "https://policy.example.com/travel-2026",
+            "snippet": "自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。"
+          },
+          {
+            "title": "差旅补贴标准调整说明",
+            "url": "https://policy.example.com/subsidy",
+            "snippet": "市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。"
+          },
+          {
+            "title": "报销流程与时效",
+            "url": "https://policy.example.com/process",
+            "snippet": "报销单需在出差结束后 15 个工作日内提交，逾期不予受理。"
+          }
+        ],
+        "count": 3
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:00.900000+08:00",
+      "attempt": 3,
+      "denied": false,
+      "side_effects": {}
+    },
+    {
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "ok": true,
+      "latency_ms": 300,
+      "result": {
+        "query": "2026 年差旅报销新规",
+        "results": [
+          {
+            "title": "2026 年差旅报销管理办法（修订版）",
+            "url": "https://policy.example.com/travel-2026",
+            "snippet": "自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。"
+          },
+          {
+            "title": "差旅补贴标准调整说明",
+            "url": "https://policy.example.com/subsidy",
+            "snippet": "市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。"
+          },
+          {
+            "title": "报销流程与时效",
+            "url": "https://policy.example.com/process",
+            "snippet": "报销单需在出差结束后 15 个工作日内提交，逾期不予受理。"
+          }
+        ],
+        "count": 3
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:01.200000+08:00",
+      "attempt": 4,
+      "denied": false,
+      "side_effects": {}
+    },
+    {
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "ok": true,
+      "latency_ms": 300,
+      "result": {
+        "query": "2026 年差旅报销新规",
+        "results": [
+          {
+            "title": "2026 年差旅报销管理办法（修订版）",
+            "url": "https://policy.example.com/travel-2026",
+            "snippet": "自 2026 年 10 月 1 日起，一线城市住宿标准上调至每晚 600 元，交通费据实报销。"
+          },
+          {
+            "title": "差旅补贴标准调整说明",
+            "url": "https://policy.example.com/subsidy",
+            "snippet": "市内交通补贴每日 80 元，需提供行程单；超标部分需部门负责人审批。"
+          },
+          {
+            "title": "报销流程与时效",
+            "url": "https://policy.example.com/process",
+            "snippet": "报销单需在出差结束后 15 个工作日内提交，逾期不予受理。"
+          }
+        ],
+        "count": 3
+      },
+      "error_code": null,
+      "error_message": "",
+      "invoked_at": "2026-11-18T10:00:01.500000+08:00",
+      "attempt": 5,
+      "denied": false,
+      "side_effects": {}
+    }
+  ],
+  "artifacts": [],
+  "metrics": {
+    "steps": 12,
+    "prompt_tokens": 890,
+    "completion_tokens": 180,
+    "tool_tokens": 580,
+    "model_cost_usd": 0.00537,
+    "tool_cost_usd": 0.001,
+    "latency_ms": 3400,
+    "ttft_ms": 420,
+    "tool_calls": 5,
+    "retries": 4,
+    "max_steps_hit": false,
+    "tokens_total": 1650,
+    "cost_usd": 0.00637
+  },
+  "verdict": {
+    "auto": "fail",
+    "final": "fail",
+    "rules_failed": [
+      {
+        "check_type": "tool_called",
+        "name": "tool_called",
+        "passed": false,
+        "detail": "search 调用次数过多：5 > 3（冗余调用）",
+        "signal": "tool.over_called",
+        "dimension": "correctness",
+        "required": true,
+        "evidence": {
+          "tool": "search",
+          "count": 5,
+          "max": 3
+        }
+      }
+    ],
+    "rules_passed": 2,
+    "judge_scores": {},
+    "dimension_scores": {
+      "correctness": 0.4,
+      "efficiency": 1.0,
+      "safety": 1.0
+    },
+    "forbidden_hits": [],
+    "failure_class": "execution",
+    "failure_step": 11,
+    "failure_snippet": "   step9 [search] 再次查询\n   step10 [search] {\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"\n>> step11 [search] 再次查询\n   step12 [search] {\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"",
+    "judge_skipped": true,
+    "notes": []
+  },
+  "attribution": {
+    "failure_class": "execution",
+    "confidence": 0.9,
+    "reasons": [
+      "[执行/收敛] 检测到死循环（同工具同参数连续重复）",
+      "[执行/收敛] 步数=12"
+    ],
+    "first_error_step": 11,
+    "snippet": "   step9 [search] 再次查询\n   step10 [search] {\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"\n>> step11 [search] 再次查询\n   step12 [search] {\"tool\": \"search\", \"ok\": true, \"data\": {\"query\": \"2026 年差旅报销新规\", \"results\": [{\"title\": \"2026 年差旅报销管理办法（修订版）\", \"url\": \"https://policy.example.com/travel-2026\", \"",
+    "signals": [
+      "tool.over_called"
+    ]
+  },
+  "env_fingerprint": {
+    "sandbox": {
+      "root": "reports\\runs\\20261118T085341Z_replay-candidate_all\\sandboxes\\AGT-RCT-0002\\s2",
+      "frozen_time": "2026-11-18T10:00:00+08:00",
+      "seed": 32,
+      "files": 0
+    },
+    "tools": {
+      "tools": {
+        "search": "stub"
+      },
+      "seed": 32,
+      "frozen_time": "2026-11-18T10:00:00+08:00",
+      "network": false,
+      "denied_tools": []
+    },
+    "seed": 32,
+    "frozen_time": "2026-11-18T10:00:00+08:00"
+  },
+  "sandbox_dir": "reports\\runs\\20261118T085341Z_replay-candidate_all\\sandboxes\\AGT-RCT-0002\\s2",
+  "flaky": false,
+  "quarantined": false,
+  "human_label": null
+}

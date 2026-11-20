@@ -1,0 +1,243 @@
+name: agent-eval
+
+# 分层执行矩阵（规范 7.2）：
+#   PR        → L1/L2/L2.5 + 20 条冒烟 L5/L6，单采样，≤8min，阻断硬失败与安全
+#   每日夜间  → L3/L4/L4.5 + L5 全量，3 次采样，退化告警
+#   发版前    → 全量全层，5 次采样（P0 取 10），全维度阻断
+#   每周      → 红队 + 压测 + 成本剖面，只出报告
+#   变更专项  → 影响面分析选出的用例，5 次采样，阻断
+
+on:
+  pull_request:
+  schedule:
+    - cron: "0 18 * * *"    # 每日 02:00 (Asia/Shanghai)
+    - cron: "0 10 * * 5"    # 每周五 18:00 (Asia/Shanghai)
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "执行档位：pr / nightly / release / weekly / impact"
+        required: true
+        default: nightly
+      agent:
+        description: "被测 Agent 适配器（replay:baseline / http:https://...）"
+        required: false
+        default: "replay:baseline"
+      samples:
+        description: "采样次数（留空用档位默认值）"
+        required: false
+        default: ""
+
+env:
+  PYTHONIOENCODING: utf-8
+  # 真实接入时改成你的 Agent 端点，例如 http:https://agent.example.com/run
+  ATK_AGENT: ${{ github.event.inputs.agent || vars.ATK_AGENT || 'replay:baseline' }}
+  # Judge：无网络时用离线启发式；有内部 Judge 时改成 openai:<model> 并配置 URL
+  ATK_JUDGE: ${{ vars.ATK_JUDGE || 'heuristic' }}
+  ATK_JUDGE_BASE_URL: ${{ secrets.ATK_JUDGE_BASE_URL }}
+  ATK_JUDGE_API_KEY: ${{ secrets.ATK_JUDGE_API_KEY }}
+
+jobs:
+  # -------------------------------------------------------------------------
+  # 0) 用例与框架体检：任何 PR 都跑，失败直接红
+  # -------------------------------------------------------------------------
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 安装框架（零第三方依赖）
+        run: pip install -e .
+      - name: 校验用例（Schema + 语义）
+        run: atk validate cases/golden
+      - name: 框架单元测试
+        run: python -m unittest discover -s tests -t .
+      - name: 框架自检（附录 A 20 项）
+        run: atk selfcheck --write docs/自检报告.md
+      - name: 静态检查（未定义名称 / 类型注解）
+        run: python tools/static_check.py --strict
+      - name: 覆盖率门禁（≥65%）
+        run: |
+          pip install coverage
+          coverage run --source=atk -m unittest discover -s tests -t .
+          coverage report --fail-under=65
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selfcheck
+          path: docs/自检报告.md
+
+  # -------------------------------------------------------------------------
+  # 1) PR 门禁：最快的一档，只阻断硬失败与安全
+  # -------------------------------------------------------------------------
+  pr-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: 恢复历史运行（作为基线）
+        uses: actions/cache@v4
+        with:
+          path: reports/runs
+          key: atk-runs-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            atk-runs-${{ github.ref_name }}-
+            atk-runs-
+      # 关键：失败必须让流水线红，且门禁只能判定「本次」运行。
+      # 以前这里写的是 --max-workers（参数不存在）+ `|| true`，
+      # 失败被吞掉后 ls -dt 会拿到 cache 恢复的旧运行目录 → 假绿。
+      - name: 跑 PR 档
+        run: |
+          atk run --profile pr --agent "$ATK_AGENT" \
+            --cases cases/golden --out reports --judge "$ATK_JUDGE" \
+            --workers 4 --run-id "pr-${{ github.sha }}"
+      - name: 门禁判定
+        run: atk gate --run "reports/runs/pr-${{ github.sha }}" --baseline auto
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr-report
+          path: reports/runs/*/report.*
+
+  # -------------------------------------------------------------------------
+  # 2) 每日夜间：轨迹层与编排层全量，3 次采样
+  # -------------------------------------------------------------------------
+  nightly:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 18 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - uses: actions/cache@v4
+        with:
+          path: reports/runs
+          key: atk-nightly-${{ github.run_id }}
+          restore-keys: atk-nightly-
+      - name: 跑夜间档
+        run: |
+          atk run --profile nightly --agent "$ATK_AGENT" --samples 3 \
+            --cases cases/golden --out reports --judge "$ATK_JUDGE" --quiet \
+            --run-id "nightly-${{ github.run_id }}"
+      - name: 门禁（退化告警，不阻断硬失败以外的项）
+        run: atk gate --run "reports/runs/nightly-${{ github.run_id }}" --baseline auto --mode hard
+      - name: 趋势看板
+        run: atk dashboard --runs reports/runs --out reports/dashboard.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-report
+          path: |
+            reports/runs/*/report.*
+            reports/dashboard.html
+
+  # -------------------------------------------------------------------------
+  # 3) 发版前：全量全层，5 次采样（P0 取 10），全维度阻断
+  # -------------------------------------------------------------------------
+  release-gate:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: 跑发版档
+        run: |
+          atk run --profile release --agent "$ATK_AGENT" \
+            --cases cases/golden --out reports --judge "$ATK_JUDGE" --quiet \
+            --run-id "release-${{ github.run_id }}"
+      - name: 全维度门禁
+        run: atk gate --run "reports/runs/release-${{ github.run_id }}" --baseline auto --mode full
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-report
+          path: reports/runs/*/report.*
+
+  # -------------------------------------------------------------------------
+  # 4) 每周：红队 + 压测 + 成本剖面，只出报告不阻断
+  # -------------------------------------------------------------------------
+  weekly:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 10 * * 5'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: 校准 Judge（每周重校准，Kappa 证据进 artifact）
+        run: atk calibrate --judge "$ATK_JUDGE" --set cases/calibration --out reports
+      - name: 跑每周档（红队/压测/成本）
+        run: |
+          atk run --profile weekly --agent "$ATK_AGENT" --samples 3 \
+            --cases cases/golden --out reports --judge "$ATK_JUDGE" --quiet --no-gate \
+            --run-id "weekly-${{ github.run_id }}"
+      - name: 出周报
+        run: |
+          atk report --run "reports/runs/weekly-${{ github.run_id }}" --baseline auto --dashboard
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weekly-report
+          path: |
+            reports/runs/*/report.*
+            reports/calibration_*
+            reports/dashboard.html
+
+  # -------------------------------------------------------------------------
+  # 5) 变更专项：影响面分析选出的用例，5 次采样，全维度阻断
+  #    （workflow_dispatch 里 profile=impact 以前没有任何 job 匹配 → 静默不跑）
+  # -------------------------------------------------------------------------
+  impact-gate:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'impact'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # 需要 HEAD~1 才能算改动文件
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - name: 影响面分析
+        id: impact
+        run: |
+          atk impact --git-base HEAD~1 --cases cases/golden --write impact.json
+          echo "count=$(python -c "import json; print(len(json.load(open('impact.json'))['case_ids']))")" >> "$GITHUB_OUTPUT"
+      - name: 只跑受影响用例
+        if: steps.impact.outputs.count != '0'
+        run: |
+          CASE_ARGS=$(python -c "import json; d=json.load(open('impact.json')); print(' '.join('--case-id '+c for c in d['case_ids']))")
+          echo "选中用例：$CASE_ARGS"
+          atk run --profile impact --agent "$ATK_AGENT" \
+            --cases cases/golden $CASE_ARGS \
+            --out reports --judge "$ATK_JUDGE" \
+            --run-id "impact-${{ github.run_id }}"
+      - name: 门禁判定
+        if: steps.impact.outputs.count != '0'
+        run: atk gate --run "reports/runs/impact-${{ github.run_id }}" --baseline auto --mode full
+      - name: 无改动时明确跳过
+        if: steps.impact.outputs.count == '0'
+        run: echo "ℹ️ 无受影响用例，本次跳过跑批与门禁"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: impact-report
+          path: |
+            impact.json
+            reports/runs/impact-*/report.*

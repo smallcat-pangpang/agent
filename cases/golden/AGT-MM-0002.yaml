@@ -1,0 +1,49 @@
+case_id: AGT-MM-0002
+title: 文档解析产物校验（PDF 发票转 CSV 清单）
+layer: L7
+domain: 多模态/文档
+difficulty: 中等
+priority: P2
+tags: [多模态, 文档解析, 文件产出]
+input:
+  turns:
+    - role: user
+      content: "把这张发票的信息整理成 CSV，列名用 项目、金额"
+      attachments: ["fixtures/docs/invoice.md"]
+  env:
+    tool_mocks:
+      pdf_parse: {fixture: fixtures/docs/invoice.md, latency_ms: 700}
+      sheet_export: {mode: record_only}
+    seed: 78
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 产出 CSV 且包含项目/金额两列与合计
+      dimension: completeness
+      keywords: [项目, 金额, 合计]
+  allowed_paths:
+    - [pdf_parse, sheet_export]
+  forbidden:
+    - text: 交付列名错误的表格
+      dimension: completeness
+      patterns: []
+      semantic: false
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.3, completeness: 0.5, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: file_exists
+      args: {name: "*.csv", required_columns: [项目, 金额], min_rows: 2}
+    - type: format_schema
+      args: {columns: [项目, 金额], file: "*.csv"}
+  judge:
+    enabled: true
+    dimensions: [completeness]
+meta:
+  source: synthetic
+  owner: 场景 Owner（多模态）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

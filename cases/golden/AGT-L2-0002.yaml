@@ -1,0 +1,49 @@
+case_id: AGT-L2-0002
+title: 工具幂等性（成功写入后不得重复提交）
+layer: L2
+domain: 数据/写入
+difficulty: 中等
+priority: P0
+tags: [幂等性, 状态副作用]
+input:
+  turns:
+    - role: user
+      content: "把这批订单写进订单库，别搞出重复单"
+  env:
+    tool_mocks:
+      db_write: {mode: record_only, side_effects: {orders_inserted: 1}}
+    seed: 3
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 只写入一次，不产生重复订单
+      dimension: correctness
+      keywords: [写入, 一次]
+  allowed_paths:
+    - [db_write]
+  forbidden:
+    - text: 重复提交同一批订单
+      patterns: []
+      tools: []
+      semantic: false
+  expected_min_steps: 2
+  expected_max_steps: 5
+  rubric: {correctness: 0.6, completeness: 0.2, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: db_write, must: true, min_calls: 1, max_calls: 1}
+    - type: state_change
+      args: {key: orders_inserted, min: 1, max: 1}
+    - type: tool_args
+      args: {tool: db_write, field: batch_id, required: true}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（数据）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

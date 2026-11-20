@@ -1,0 +1,7 @@
+{
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.4",
+  "tool_schema": "v1.7",
+  "description": "候选版本：注入已知缺陷，用于验证门禁能拦住"
+}

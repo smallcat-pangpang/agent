@@ -1,0 +1,58 @@
+{
+  "case_id": "AGT-SKL-0003",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.3",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 1070,
+    "completion": 220
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：多技能冲突（先出 PDF 再发邮件）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "skill_registry",
+      "args": {
+        "intent": "spreadsheet"
+      },
+      "content": "调用 skill_registry",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "skill_pdf",
+      "args": {
+        "path": "report.pdf"
+      },
+      "content": "调用 skill_pdf",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "skill_email",
+      "args": {
+        "to": "management@example.com",
+        "subject": "月度报告"
+      },
+      "content": "调用 skill_email",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。先 PDF 后邮件，顺序正确（PDF、邮件）。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。先 PDF 后邮件，顺序正确（PDF、邮件）。"
+}

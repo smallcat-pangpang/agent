@@ -1,0 +1,14 @@
+{
+  "warehouse": "WH-上海-01",
+  "count": 8,
+  "items": [
+    {"sku": "SKU-1001", "name": "机械键盘", "stock": 42, "safety_stock": 20},
+    {"sku": "SKU-1002", "name": "无线鼠标", "stock": 118, "safety_stock": 30},
+    {"sku": "SKU-1003", "name": "27寸显示器", "stock": 7, "safety_stock": 10},
+    {"sku": "SKU-1004", "name": "USB-C 扩展坞", "stock": 0, "safety_stock": 15},
+    {"sku": "SKU-1005", "name": "降噪耳机", "stock": 23, "safety_stock": 10},
+    {"sku": "SKU-1006", "name": "笔记本支架", "stock": 65, "safety_stock": 20},
+    {"sku": "SKU-1007", "name": "移动硬盘 1T", "stock": 9, "safety_stock": 12},
+    {"sku": "SKU-1008", "name": "摄像头 1080P", "stock": 31, "safety_stock": 10}
+  ]
+}

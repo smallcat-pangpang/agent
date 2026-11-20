@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# 测试 / 运行临时目录
+tests/_tmp/
+.atk-tmp/
+
+# 运行产物：每次跑批自动生成，体积大且没有版本价值，默认不入库。
+# 需要提交演示产物时用 git add -f 显式加入（README 提到的两份已跟踪）。
+reports/runs/*/
+reports/calibration_*/
+reports/dashboard.html
+reports/runs/*/sandboxes/
+reports/quarantine.json
+impact.json
+
+# PyCharm / 编辑器
+.idea/
+.vscode/
+.DS_Store

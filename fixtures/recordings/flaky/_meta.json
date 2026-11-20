@@ -1,0 +1,7 @@
+{
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.5",
+  "tool_schema": "v1.7",
+  "description": "稳定性演示：部分用例 3 次采样中偶尔失败，用于展示 pass^k 与 Flaky 检测"
+}

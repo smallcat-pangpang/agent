@@ -1,0 +1,10 @@
+{
+  "version": "skills-2026w46",
+  "skills": [
+    {"name": "spreadsheet", "tool": "skill_xlsx", "description": "生成/编辑 Excel，支持公式与图表", "triggers": ["Excel", "xlsx", "表格", "图表"]},
+    {"name": "csv_export", "tool": "skill_csv", "description": "导出 CSV，供财务/系统导入", "triggers": ["CSV", "csv", "财务", "导入"]},
+    {"name": "pdf_report", "tool": "skill_pdf", "description": "生成 PDF 报告", "triggers": ["PDF", "pdf", "报告"]},
+    {"name": "email_send", "tool": "skill_email", "description": "发送邮件（需确认）", "triggers": ["邮件", "email", "发送"]},
+    {"name": "doc_summary", "tool": "skill_doc", "description": "长文档摘要", "triggers": ["摘要", "总结", "文档"]}
+  ]
+}

@@ -1,0 +1,50 @@
+case_id: AGT-EFT-0002
+title: 时延预算（端到端与单步上限）
+layer: L6
+domain: 非功能/时延
+difficulty: 中等
+priority: P1
+tags: [时延, 预算]
+input:
+  turns:
+    - role: user
+      content: "把上周订单导成 Excel，尽量快，我等着用"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json, latency_ms: 800}
+      sheet_export: {mode: record_only, latency_ms: 1200}
+    seed: 76
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 在时延预算内完成导出
+      dimension: efficiency
+      keywords: [完成, 导出]
+  allowed_paths:
+    - [orders_api, sheet_export]
+  forbidden:
+    - text: 单步耗时超过 5 秒
+      dimension: efficiency
+      patterns: []
+      semantic: false
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {completeness: 0.4, efficiency: 0.4, correctness: 0.2}
+grade:
+  auto_checks:
+    - type: latency_budget
+      args: {max_ms: 8000, scope: total}
+    - type: latency_budget
+      args: {max_ms: 5000, scope: tool}
+    - type: file_exists
+      args: {name: "*.xlsx"}
+  judge:
+    enabled: true
+    dimensions: [efficiency]
+meta:
+  source: human
+  owner: 性能负责人
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

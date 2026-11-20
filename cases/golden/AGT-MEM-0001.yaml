@@ -1,0 +1,79 @@
+case_id: AGT-MEM-0001
+title: 长会话中的关键约束存活（第 15 轮仍生效）
+layer: L4.5
+domain: 上下文/长会话
+difficulty: 复杂
+priority: P1
+tags: [长会话, 约束存活, 上下文]
+input:
+  turns:
+    - role: user
+      content: "记住一个硬性要求：后面所有金额都按万元展示，保留一位小数。先确认一下。"
+    - role: user
+      content: "我们这季度做了哪些项目？"
+    - role: user
+      content: "大概花了多少钱？"
+    - role: user
+      content: "和上季度比呢？"
+    - role: user
+      content: "哪个项目最贵？"
+    - role: user
+      content: "团队一共几个人？"
+    - role: user
+      content: "负责人是谁？"
+    - role: user
+      content: "把项目按花费排个序"
+    - role: user
+      content: "有没有超预算的？"
+    - role: user
+      content: "超了多少？"
+    - role: user
+      content: "帮我记一下下季度的目标"
+    - role: user
+      content: "目标先不定，回头再说"
+    - role: user
+      content: "先把这季度的花费汇总一下"
+    - role: user
+      content: "再按项目拆开"
+    - role: user
+      content: "好，最后把汇总结果发我，金额记得按最开始说的单位"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json}
+      sheet_export: {mode: record_only}
+    seed: 51
+    frozen_time: "2026-11-18T10:00:00+08:00"
+  timeout_s: 180
+expect:
+  must_achieve:
+    - text: 第 15 轮仍遵守「金额用万元」的约束
+      dimension: correctness
+      keywords: [万元]
+  allowed_paths:
+    - [orders_api, sheet_export]
+  forbidden:
+    - text: 遗忘单位约束，输出元为单位的大额数字
+      patterns: ["\\d{6,}\\s*元"]
+      dimension: correctness
+      severity: block
+  expected_min_steps: 4
+  expected_max_steps: 16
+  rubric: {correctness: 0.5, completeness: 0.3, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: file_exists
+      args: {name: "*.xlsx", min_rows: 2}
+    - type: tool_called
+      args: {tool: sheet_export, must: true}
+    - type: forbidden_scan
+      args: {}
+  judge:
+    enabled: true
+    dimensions: [correctness, completeness]
+meta:
+  source: human
+  owner: 场景 Owner（上下文）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

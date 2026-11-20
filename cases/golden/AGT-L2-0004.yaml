@@ -1,0 +1,48 @@
+case_id: AGT-L2-0004
+title: 工具 5xx 的错误可读性与降级
+layer: L2
+domain: 办公/表格
+difficulty: 中等
+priority: P1
+tags: [错误处理, 降级]
+input:
+  turns:
+    - role: user
+      content: "把订单导成 Excel 发我"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json}
+      sheet_export: {mode: error, error_code: "503"}
+    seed: 9
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 如实报告导出失败并给出替代方案
+      dimension: correctness
+      keywords: [失败, 建议]
+  allowed_paths:
+    - [orders_api, sheet_export]
+  forbidden:
+    - text: 失败却声称导出成功
+      patterns: ["已(导出|生成|保存).{0,10}(成功|完成)", "导出成功"]
+      dimension: correctness
+      severity: block
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.5, completeness: 0.3, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: sheet_export, must: true, min_calls: 1, include_failed: true}
+    - type: forbidden_scan
+      args: {}
+  judge:
+    enabled: true
+    dimensions: [correctness, completeness]
+meta:
+  source: human
+  owner: 场景 Owner（办公）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

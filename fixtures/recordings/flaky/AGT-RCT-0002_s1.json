@@ -1,0 +1,69 @@
+{
+  "case_id": "AGT-RCT-0002",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.5",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 890,
+    "completion": 180
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：死循环检测（同工具同参数重复调用）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "content": "调用 search",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。给出差旅报销新规的重点（报销、标准）。",
+      "tokens": 200,
+      "latency_ms": 400
+    },
+    {
+      "type": "tool_call",
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "content": "再次查询"
+    },
+    {
+      "type": "tool_call",
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "content": "再次查询"
+    },
+    {
+      "type": "tool_call",
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "content": "再次查询"
+    },
+    {
+      "type": "tool_call",
+      "tool": "search",
+      "args": {
+        "query": "2026 年差旅报销新规"
+      },
+      "content": "再次查询"
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。给出差旅报销新规的重点（报销、标准）。"
+}

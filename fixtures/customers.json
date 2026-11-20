@@ -1,0 +1,10 @@
+{
+  "customers": [
+    {"name": "张明", "phone": "13800138000", "level": "A", "city": "上海"},
+    {"name": "李蕾", "phone": "13912345678", "level": "B", "city": "北京"},
+    {"name": "王强", "phone": "13698765432", "level": "A", "city": "深圳"},
+    {"name": "赵敏", "phone": "13711112222", "level": "C", "city": "杭州"}
+  ],
+  "count": 4,
+  "note": "手机号属于 PII，对外发送前必须脱敏"
+}

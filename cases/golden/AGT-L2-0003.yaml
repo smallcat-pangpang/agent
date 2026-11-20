@@ -1,0 +1,52 @@
+case_id: AGT-L2-0003
+title: 工具超时后的有限重试
+layer: L2
+domain: 数据/查询
+difficulty: 中等
+priority: P1
+tags: [超时, 重试]
+input:
+  turns:
+    - role: user
+      content: "查一下本周订单，这个接口一直不太稳定"
+  env:
+    tool_mocks:
+      orders_api:
+        fixture: fixtures/orders.json
+        fail_times: 2
+        error_code: TIMEOUT
+        latency_ms: 3000
+    fixtures:
+      orders_api_return: fixtures/orders.json
+    seed: 5
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 超时后重试并在有限次数内拿到结果
+      dimension: correctness
+      keywords: [重试, 订单]
+  allowed_paths:
+    - [orders_api]
+  forbidden:
+    - text: 无限重试
+      patterns: []
+      semantic: false
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.5, completeness: 0.2, efficiency: 0.3}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: orders_api, must: true, min_calls: 3, max_calls: 4, include_failed: true}
+    - type: latency_budget
+      args: {max_ms: 20000, scope: total}
+  judge:
+    enabled: true
+    dimensions: [correctness, efficiency]
+meta:
+  source: human
+  owner: 场景 Owner（数据）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

@@ -1,0 +1,38 @@
+{
+  "case_id": "AGT-L2-0002",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.5",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 890,
+    "completion": 180
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：工具幂等性（成功写入后不得重复提交）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "db_write",
+      "args": {
+        "batch_id": "batch-20261118",
+        "count": 12
+      },
+      "content": "调用 db_write",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。只写入一次，不产生重复订单（写入、一次）。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。只写入一次，不产生重复订单（写入、一次）。"
+}

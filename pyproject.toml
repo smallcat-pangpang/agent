@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atk-agent-testkit"
+version = "1.0.1"
+description = "Agent 产品测试/评估框架：分层用例、轨迹断言、pass^k、Judge 校准、分维度门禁"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Agent Quality Team" }]
+keywords = ["agent", "evaluation", "testing", "llm", "gate"]
+# 核心零依赖：内置 YAML 子集解析器、JSON Schema 校验器、xlsx 读写
+dependencies = []
+
+[project.optional-dependencies]
+# 可选：更强的表格解析与统计（不装也能跑）
+pandas = ["pandas>=2.0", "openpyxl>=3.1"]
+dev = ["pytest>=7.0", "ruff>=0.6", "mypy>=1.10", "coverage>=7.0"]
+
+# 说明：核心运行零依赖；静态检查与覆盖率是**开发期**工具，不进运行时依赖。
+# CI 的 sanity 阶段用 stdlib 版 tools/static_check.py 做强制门禁，
+# ruff / mypy / coverage 为可选增强（见 .github/workflows/agent-eval.yml）。
+
+[project.scripts]
+atk = "atk.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["atk*"]
+
+[tool.setuptools.package-data]
+"atk.schema" = ["*.json"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", "reports", "fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+# 与 tools/static_check.py 的分工：F821（未定义名称）必须零容忍；
+# F401（未使用导入）在 __init__.py 里的再导出是设计，单独豁免。
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"atk/**/__init__.py" = ["F401"]
+"tests/**" = ["F401"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+follow_imports = "silent"
+warn_unused_ignores = false
+# 注解是字符串时 mypy 仍能抓到未导入的名字，这正是 stats.py 那类 bug 的解法
+check_untyped_defs = false
+exclude = ["\\.venv", "reports", "fixtures", "tools/build_demo_data.py"]
+
+[tool.coverage.run]
+source = ["atk"]
+omit = ["*/__init__.py"]
+
+[tool.coverage.report]
+# 当前实测 ~68%；门限设在略低于实测值，防止新增代码把覆盖率拉下去
+fail_under = 65
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

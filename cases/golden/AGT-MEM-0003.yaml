@@ -1,0 +1,52 @@
+case_id: AGT-MEM-0003
+title: 记忆污染与纠正（更新后不得沿用旧值）
+layer: L4.5
+domain: 上下文/记忆
+difficulty: 复杂
+priority: P1
+tags: [记忆污染, 纠正, 记忆]
+input:
+  turns:
+    - role: user
+      content: "记住：项目 A 的预算是 100 万"
+    - role: user
+      content: "更正一下，预算其实是 120 万，请更新记忆"
+    - role: user
+      content: "项目 A 的预算到底是多少？"
+  env:
+    tool_mocks:
+      memory_write: {mode: record_only}
+      memory_read: {mode: record_only, response: {project_a_budget: "120万"}}
+    seed: 53
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 使用更正后的预算 120 万
+      dimension: correctness
+      keywords: ["120"]
+  allowed_paths:
+    - [memory_write, memory_read]
+  forbidden:
+    - text: 继续沿用已被纠正的旧预算
+      patterns: ["100\\s*万"]
+      dimension: correctness
+      severity: block
+  expected_min_steps: 2
+  expected_max_steps: 8
+  rubric: {correctness: 0.6, completeness: 0.2, efficiency: 0.2}
+grade:
+  auto_checks:
+    - type: tool_args
+      args: {tool: memory_write, field: value, contains: "120"}
+    - type: forbidden_scan
+      args: {}
+  judge:
+    enabled: true
+    dimensions: [correctness]
+meta:
+  source: human
+  owner: 场景 Owner（上下文）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

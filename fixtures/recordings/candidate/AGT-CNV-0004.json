@@ -1,0 +1,61 @@
+{
+  "case_id": "AGT-CNV-0004",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.4",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 1070,
+    "completion": 220
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：多轮修改后的产物一致性",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "sheet_export",
+      "args": {
+        "path": "orders.xlsx",
+        "sheet": "订单"
+      },
+      "content": "调用 sheet_export",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "sheet_export",
+      "args": {
+        "path": "orders.xlsx",
+        "sheet": "订单",
+        "filter": "已发货"
+      },
+      "content": "调用 sheet_export",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。最终产物包含订单号/金额/状态，且只含已发货（已发货、状态）。涉及数据：12、A-1001、128.5、2026。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [],
+  "final_output": "已完成。最终产物包含订单号/金额/状态，且只含已发货（已发货、状态）。涉及数据：12、A-1001、128.5、2026。"
+}

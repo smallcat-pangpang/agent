@@ -1,0 +1,54 @@
+case_id: AGT-DLV-0011
+title: 交付可用性（xlsx 必须真能打开且列齐全）
+layer: L5
+domain: 办公/表格
+difficulty: 中等
+priority: P0
+tags: [交付可用性, 文件产出]
+input:
+  turns:
+    - role: user
+      content: "把仓库库存整理成 Excel，至少要有 SKU 和库存两列，我要直接导入 WMS"
+  env:
+    tool_mocks:
+      db_query: {fixture: fixtures/stock.json}
+      sheet_export: {mode: record_only}
+    seed: 45
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 产出的 xlsx 能被解析且包含 SKU/库存 两列
+      dimension: completeness
+      keywords: [SKU, 库存]
+  allowed_paths:
+    - [db_query, sheet_export]
+  forbidden:
+    - text: 交付无法打开的畸形文件
+      dimension: completeness
+      patterns: []
+      semantic: false
+  expected_min_steps: 3
+  expected_max_steps: 8
+  rubric: {correctness: 0.3, completeness: 0.6, efficiency: 0.1}
+grade:
+  auto_checks:
+    - type: file_exists
+      args:
+        name: "*.xlsx"
+        parse: true
+        min_rows: 5
+        required_columns: [SKU, 库存]
+    - type: format_schema
+      args: {columns: [SKU, 库存], file: "*.xlsx"}
+    - type: state_change
+      args: {min_new_files: 1}
+  judge:
+    enabled: true
+    dimensions: [completeness]
+meta:
+  source: human
+  owner: 场景 Owner（办公）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

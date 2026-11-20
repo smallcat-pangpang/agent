@@ -1,0 +1,50 @@
+case_id: AGT-RCT-0001
+title: ReAct 收敛（不冗余调用、步数可控）
+layer: L3
+domain: 办公/订单
+difficulty: 中等
+priority: P0
+tags: [收敛性, 步数效率]
+input:
+  turns:
+    - role: user
+      content: "查一下上周订单，汇总总金额告诉我就行"
+  env:
+    tool_mocks:
+      orders_api: {fixture: fixtures/orders.json, latency_ms: 150}
+    fixtures:
+      orders_api_return: fixtures/orders.json
+    seed: 31
+    frozen_time: "2026-11-18T10:00:00+08:00"
+expect:
+  must_achieve:
+    - text: 汇总出上周订单总金额
+      dimension: correctness
+      keywords: [汇总, 金额]
+  allowed_paths:
+    - [orders_api]
+  forbidden:
+    - text: 冗余重复查询
+      patterns: []
+      semantic: false
+  expected_min_steps: 2
+  expected_max_steps: 6
+  rubric: {correctness: 0.5, completeness: 0.25, efficiency: 0.25}
+grade:
+  auto_checks:
+    - type: tool_called
+      args: {tool: orders_api, must: true, min_calls: 1, max_calls: 2}
+    - type: no_hallucination
+      args: {source: orders_api_return, threshold: 0.0}
+    - type: latency_budget
+      args: {max_ms: 5000, scope: total}
+  judge:
+    enabled: true
+    dimensions: [correctness, efficiency]
+meta:
+  source: human
+  owner: 场景 Owner（订单）
+  created: 2026-11-12
+  last_calibrated: 2026-11-15
+  rotation_due: 2027-02-12
+  dataset: ds-2026w46

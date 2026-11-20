@@ -1,0 +1,132 @@
+{
+  "case_id": "AGT-ORD-0031",
+  "agent": "demo-agent",
+  "model": "demo-2026.11",
+  "prompt": "v2.5",
+  "tool_schema": "v1.7",
+  "ttft_ms": 420,
+  "tokens": {
+    "prompt": 1070,
+    "completion": 220
+  },
+  "steps": [
+    {
+      "type": "plan",
+      "content": "计划：订单导出成 Excel 并发到运营群（旗舰端到端）",
+      "tokens": 120
+    },
+    {
+      "type": "tool_call",
+      "tool": "orders_api",
+      "args": {
+        "range": "上周",
+        "limit": 100
+      },
+      "content": "调用 orders_api",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "sheet_export",
+      "args": {
+        "path": "orders.xlsx",
+        "sheet": "订单"
+      },
+      "content": "调用 sheet_export",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "tool_call",
+      "tool": "im_send",
+      "args": {
+        "chat_id": "chat_ops_001",
+        "text": "订单汇总"
+      },
+      "content": "调用 im_send",
+      "latency_ms": 300,
+      "tokens": 80
+    },
+    {
+      "type": "final",
+      "content": "已完成。产出 xlsx 且包含订单号/金额/状态 三列。调用 im_send 且目标群正确。涉及数据：12、A-1001、128.5、2026。",
+      "tokens": 200,
+      "latency_ms": 400
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "orders_export.xlsx",
+      "type": "xlsx",
+      "columns": [
+        "订单号",
+        "金额",
+        "状态"
+      ],
+      "rows": [
+        [
+          "A-1001",
+          128.5,
+          "已发货"
+        ],
+        [
+          "A-1002",
+          139.0,
+          "已发货"
+        ],
+        [
+          "A-1003",
+          149.5,
+          "已发货"
+        ],
+        [
+          "A-1004",
+          160.0,
+          "已发货"
+        ],
+        [
+          "A-1005",
+          170.5,
+          "已发货"
+        ],
+        [
+          "A-1006",
+          181.0,
+          "已发货"
+        ],
+        [
+          "A-1007",
+          191.5,
+          "已发货"
+        ],
+        [
+          "A-1008",
+          202.0,
+          "已发货"
+        ],
+        [
+          "A-1009",
+          212.5,
+          "已发货"
+        ],
+        [
+          "A-1010",
+          223.0,
+          "已发货"
+        ],
+        [
+          "A-1011",
+          233.5,
+          "已发货"
+        ],
+        [
+          "A-1012",
+          244.0,
+          "已发货"
+        ]
+      ]
+    }
+  ],
+  "final_output": "已完成。产出 xlsx 且包含订单号/金额/状态 三列。调用 im_send 且目标群正确。涉及数据：12、A-1001、128.5、2026。"
+}
