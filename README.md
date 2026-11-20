@@ -27,10 +27,12 @@ python -m atk calibrate --judge heuristic --set cases/calibration
 # ⑤ 稳定性演示：pass^1 92.4% → pass^2 84.8% → pass^3 77.1%
 python -m atk run --profile all --agent replay:flaky --samples 3 --judge heuristic --no-quarantine
 
-# ⑥ 趋势看板 + 框架自检 + 静态体检
+# ⑥ 趋势看板 + 框架自检 + 静态体检 + CI 本地体检
 python -m atk dashboard
 python -m atk selfcheck --write docs/自检报告.md
 python tools/static_check.py --strict
+python tools/ci_local_check.py --static-only   # 只校验 workflow（CI 的 sanity 也跑这一步）
+python tools/ci_local_check.py                # 本地复现 CI 六个 job + 「该红会红」负向断言
 
 # ⑦ 框架自身的单元测试（不联网）
 python -m unittest discover -s tests -t .
@@ -119,6 +121,7 @@ KJ-2/
 ├─ tests/                    # 118 个单元测试（不联网）
 ├─ tools/build_demo_data.py  # 重新生成 fixture 与录制（含 flaky）
 ├─ tools/static_check.py     # 零依赖静态体检（CI 强制）
+├─ tools/ci_local_check.py   # 本地复现 CI 六 job + workflow 静态校验（CI 强制 --static-only）
 └─ .github/workflows/        # PR/夜间/发版/每周 四档 CI
 ```
 
@@ -381,6 +384,12 @@ python -m atk validate cases/golden     # 35 条用例，0 错误；3 条 allowe
 python -m unittest discover -s tests -t .   # 118 tests OK
 python tools/static_check.py --strict  # 阻断项 0
 python -m atk selfcheck                 # 19 通过 / 0 未达标 / 1 需人工确认
+python tools/ci_local_check.py          # 28 PASS：六 job 命令链 + workflow 校验 + 负向断言
+
+> `ci_local_check.py` 在 push 前逐条复现 `.github/workflows/agent-eval.yml` 的每个 `run:`
+> 步骤，并额外做一次「无基线 + candidate 必须变红」的负向断言，专门防止 P0-1 那种
+> 「看起来绿、其实没跑门禁」回归。它**不能替代**真实 GitHub Actions：Ubuntu / Python 3.11 /
+> 从零 clone 与本地环境仍有差异，push 后需再确认一次。
 
 > 那 3 条告警（AGT-DGR-0002 / AGT-MEM-0002 / AGT-SEC-0001）是 v1.0.1 新增的
 > 「涉及工具调用必须声明 allowed_paths」检查发现的真实缺口，见自检第 13 项（91%）。

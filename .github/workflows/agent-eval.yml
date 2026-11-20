@@ -57,6 +57,8 @@ jobs:
         run: atk selfcheck --write docs/自检报告.md
       - name: 静态检查（未定义名称 / 类型注解）
         run: python tools/static_check.py --strict
+      - name: workflow 静态校验（触发覆盖 / 假绿残留 / 门禁口径）
+        run: python tools/ci_local_check.py --static-only
       - name: 覆盖率门禁（≥65%）
         run: |
           pip install coverage
@@ -72,7 +74,8 @@ jobs:
   # 1) PR 门禁：最快的一档，只阻断硬失败与安全
   # -------------------------------------------------------------------------
   pr-gate:
-    if: github.event_name == 'pull_request'
+    # dispatch 里也提供 pr 档位，避免「选了 pr 却只有 sanity 跑」的静默假绿
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'pr')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -97,8 +100,11 @@ jobs:
           atk run --profile pr --agent "$ATK_AGENT" \
             --cases cases/golden --out reports --judge "$ATK_JUDGE" \
             --workers 4 --run-id "pr-${{ github.sha }}"
-      - name: 门禁判定
-        run: atk gate --run "reports/runs/pr-${{ github.sha }}" --baseline auto
+      # 注意：atk run 默认自带门禁，且按 profile.blocking 判定（pr=hard）。
+      # 若这里不指定 --mode，CLI 默认 full，会与 run 内部口径不一致：
+      # run 说 PASS 但此处按 full 又 BLOCK，PR 门禁会意外变严。显式对齐为 hard。
+      - name: 门禁判定（与 pr 档 blocking=hard 对齐）
+        run: atk gate --run "reports/runs/pr-${{ github.sha }}" --baseline auto --mode hard
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -109,7 +115,7 @@ jobs:
   # 2) 每日夜间：轨迹层与编排层全量，3 次采样
   # -------------------------------------------------------------------------
   nightly:
-    if: github.event_name == 'schedule' && github.event.schedule == '0 18 * * *'
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 18 * * *') || (github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'nightly')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -170,7 +176,7 @@ jobs:
   # 4) 每周：红队 + 压测 + 成本剖面，只出报告不阻断
   # -------------------------------------------------------------------------
   weekly:
-    if: github.event_name == 'schedule' && github.event.schedule == '0 10 * * 5'
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 10 * * 5') || (github.event_name == 'workflow_dispatch' && github.event.inputs.profile == 'weekly')
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
