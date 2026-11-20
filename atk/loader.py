@@ -33,11 +33,18 @@ CASE_SUFFIXES = (".yaml", ".yml", ".json")
 
 @dataclass
 class LoadResult:
-    """加载结果：用例 + 错误 + 告警。"""
+    """加载结果：用例 + 错误 + 告警。
+
+    ``total_files`` 记录扫描到的文件数：解析失败的文件会被跳过、不进 ``cases``，
+    只有保留扫描总数，validate 的汇总才能说清「扫了几个、成几个、挂几个」，
+    而不是显示「共 0 条用例，6 个错误」这种把解析失败藏起来的口径。
+    """
 
     cases: list[TestCase] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    #: 实际扫描到的用例文件数（含解析失败被跳过的）
+    total_files: int = 0
 
     def ok(self) -> bool:
         return not self.errors
@@ -239,6 +246,7 @@ def load_cases(
         paths = [paths]
     files = discover_case_files(paths)
     result = LoadResult()
+    result.total_files = len(files)
 
     if not files:
         result.errors.append("未找到任何用例文件（.yaml/.yml/.json）")

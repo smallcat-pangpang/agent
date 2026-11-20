@@ -118,7 +118,7 @@ KJ-2/
 │  └─ recordings/            # baseline / candidate / flaky 三套录制
 ├─ config/                   # 阈值、执行矩阵、影响面规则
 ├─ docs/                     # 指标口径、维护手册、自检报告
-├─ tests/                    # 118 个单元测试（不联网）
+├─ tests/                    # 120 个单元测试（不联网）
 ├─ tools/build_demo_data.py  # 重新生成 fixture 与录制（含 flaky）
 ├─ tools/static_check.py     # 零依赖静态体检（CI 强制）
 ├─ tools/ci_local_check.py   # 本地复现 CI 六 job + workflow 静态校验（CI 强制 --static-only）
@@ -357,7 +357,7 @@ agent = create_agent("http:https://agent.example.com/run")
 `flaky` 让 8 条用例在 3 次采样中偶尔失败一次，用来证明 `pass^k` 能区分稳定性，
 同样不代表任何真实模型的能力。
 
-断言库、统计、门禁、脱敏的正确性由 `tests/` 里 118 个**手工构造**的测试独立验证，
+断言库、统计、门禁、脱敏的正确性由 `tests/` 里 120 个**手工构造**的测试独立验证，
 不依赖上述录制。
 
 > 隐私：`config/atk.yaml` 里是演示盐值。生产环境请用环境变量
@@ -380,8 +380,8 @@ agent = create_agent("http:https://agent.example.com/run")
 ## 15. 验证
 
 ```bash
-python -m atk validate cases/golden     # 35 条用例，0 错误；3 条 allowed_paths 告警（真实缺口）
-python -m unittest discover -s tests -t .   # 118 tests OK
+python -m atk validate cases/golden     # 共扫描 35 个文件，成功加载 35 条，0 错误；3 条 allowed_paths 告警（真实缺口）
+python -m unittest discover -s tests -t .   # 120 tests OK
 python tools/static_check.py --strict  # 阻断项 0
 python -m atk selfcheck                 # 19 通过 / 0 未达标 / 1 需人工确认
 python tools/ci_local_check.py          # 28 PASS：六 job 命令链 + workflow 校验 + 负向断言

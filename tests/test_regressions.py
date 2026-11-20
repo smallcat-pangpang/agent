@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+from pathlib import Path
 
 from atk.config import Config, ConfigError, load_config
 from atk.grading.judge import JudgeScore, RULE_ONLY_DIMENSIONS, merge_judge_scores
@@ -95,6 +96,38 @@ class TestImpactGitErrors(unittest.TestCase):
             with self.assertRaises(ImpactGitError) as ctx:
                 git_changed_files("HEAD~1", cwd=tmp)
             self.assertIn("不是 git 仓库", str(ctx.exception))
+
+
+class TestValidateCounting(unittest.TestCase):
+    """P2-5：validate 汇总必须说清「扫描了几个文件」，而不是拿成功加载数当总数。"""
+
+    def test_parse_failure_counted_in_total_files(self):
+        from atk.loader import load_cases
+
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "bad.yaml"
+            bad.write_text(
+                "case_id: AGT-TST-9001\ntitle: 坏用例\nlayer: L9\n"
+                "input:\n  turns: []\n  env: {}\nexpect: {}\ngrade: {}\n",
+                encoding="utf-8",
+            )
+            load = load_cases([tmp], strict=False)
+        self.assertEqual(load.total_files, 1)
+        self.assertEqual(len(load.cases), 0)
+        self.assertGreater(len(load.errors), 0)
+
+
+class TestCalibrateBaseUrlAlias(unittest.TestCase):
+    """P2-7：calibrate 与 run 的 Judge 地址参数同名；--base-url 保留为兼容别名。"""
+
+    def test_both_names_map_to_same_field(self):
+        from atk.cli import build_parser
+
+        parser = build_parser()
+        new_name = parser.parse_args(["calibrate", "--judge-base-url", "http://a"])
+        legacy = parser.parse_args(["calibrate", "--base-url", "http://b"])
+        self.assertEqual(new_name.base_url, "http://a")
+        self.assertEqual(legacy.base_url, "http://b")
 
 
 if __name__ == "__main__":

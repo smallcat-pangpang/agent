@@ -80,6 +80,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
             json.dumps(
                 {
                     "ok": load.ok(),
+                    "total_files": load.total_files,
                     "cases": len(load.cases),
                     "errors": load.errors,
                     "warnings": load.warnings,
@@ -93,7 +94,12 @@ def cmd_validate(args: argparse.Namespace) -> int:
             print(f"⚠️  {warning}")
         for error in load.errors:
             print(f"❌ {error}")
-        print(f"\n共 {len(load.cases)} 条用例，{len(load.errors)} 个错误，{len(load.warnings)} 个告警")
+        # 口径：扫描总数 / 成功加载 / 错误 / 告警。解析失败的文件不进 cases，
+        # 若只报 cases 数会出现「共 0 条用例，6 个错误」这种把失败藏起来的说法。
+        print(
+            f"\n共扫描 {load.total_files} 个文件，成功加载 {len(load.cases)} 条用例，"
+            f"{len(load.errors)} 个错误，{len(load.warnings)} 个告警"
+        )
     return EXIT_OK if load.ok() else EXIT_BLOCK
 
 
@@ -667,7 +673,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("calibrate", help="Judge 校准（Kappa/偏差/红队）")
     p.add_argument("--set", default="cases/calibration")
     p.add_argument("--judge", default="heuristic")
-    p.add_argument("--base-url", default="")
+    p.add_argument(
+        "--judge-base-url",
+        "--base-url",
+        dest="base_url",
+        default="",
+        help="OpenAI 兼容接口 base url（--base-url 为兼容旧脚本保留的别名，新文档统一用 --judge-base-url，与 run 子命令一致）",
+    )
     p.add_argument("--api-key", default="")
     p.add_argument("--threshold", type=float, default=0.6)
     p.add_argument("--model-under-test", default="", help="被测模型名，用于自我偏好检查")
